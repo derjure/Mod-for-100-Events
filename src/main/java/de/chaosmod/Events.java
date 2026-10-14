@@ -8,6 +8,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -29,11 +31,13 @@ public final class Events {
 
     private static Ev e(int id, String n) { Ev v = new Ev(id, n); ALL.add(v); return v; }
 
-    private static final Block[] WOOL = {Blocks.WHITE_WOOL, Blocks.ORANGE_WOOL, Blocks.MAGENTA_WOOL, Blocks.LIGHT_BLUE_WOOL,
-            Blocks.YELLOW_WOOL, Blocks.LIME_WOOL, Blocks.PINK_WOOL, Blocks.CYAN_WOOL, Blocks.PURPLE_WOOL, Blocks.BLUE_WOOL,
-            Blocks.GREEN_WOOL, Blocks.RED_WOOL};
-    private static final Block[] RAINBOW = {Blocks.RED_WOOL, Blocks.ORANGE_WOOL, Blocks.YELLOW_WOOL, Blocks.LIME_WOOL,
-            Blocks.LIGHT_BLUE_WOOL, Blocks.BLUE_WOOL, Blocks.PURPLE_WOOL};
+    private static Block blk(String name) { return BuiltInRegistries.BLOCK.getValue(Identifier.withDefaultNamespace(name)); }
+    private static final EntityType<?> ZOMBIE_T = BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("zombie"));
+    private static final Block[] WOOL = names("white_wool", "orange_wool", "magenta_wool", "light_blue_wool", "yellow_wool",
+            "lime_wool", "pink_wool", "cyan_wool", "purple_wool", "blue_wool", "green_wool", "red_wool");
+    private static final Block[] RAINBOW = names("red_wool", "orange_wool", "yellow_wool", "lime_wool",
+            "light_blue_wool", "blue_wool", "purple_wool");
+    private static Block[] names(String... n) { Block[] b = new Block[n.length]; for (int i = 0; i < n.length; i++) b[i] = blk(n[i]); return b; }
     private static final Block[] ORES = {Blocks.IRON_ORE, Blocks.GOLD_ORE, Blocks.DIAMOND_ORE, Blocks.COPPER_ORE,
             Blocks.EMERALD_ORE, Blocks.LAPIS_ORE, Blocks.REDSTONE_ORE, Blocks.COAL_ORE};
     private static final String[] RIDE = {"pig", "cow", "sheep", "horse", "llama", "goat", "strider", "ravager", "hoglin",
@@ -97,7 +101,7 @@ public final class Events {
         });
 
         e(2, "Dein Schatten-Ich").perm().start(r -> {
-            Entity z = spawnAhead(r, EntityType.ZOMBIE, 7);
+            Entity z = spawnAhead(r, ZOMBIE_T, 7);
             if (z == null) return;
             name(z, r.p.getName().getString());
             if (z instanceof Mob m) {
@@ -165,11 +169,11 @@ public final class Events {
 
         // ===== HEROBRINE =====
         e(16, "Herobrine: Sichtung").start(r -> {
-            Entity z = spawnAhead(r, EntityType.ZOMBIE, 28);
+            Entity z = spawnAhead(r, ZOMBIE_T, 28);
             if (z == null) return;
             r.obj = z;
             if (z instanceof Mob m) { m.setNoAi(true); m.setPersistenceRequired(); }
-            z.setSilent(true); z.setInvulnerable(true); z.setGlowingTag(true);
+            z.setSilent(true); z.setGlowingTag(true);
         }).tick(r -> {
             if (!(r.obj instanceof Entity z) || z.isRemoved()) return;
             Vec3 to = z.getEyePosition().subtract(r.p.getEyePosition()).normalize();
@@ -556,3 +560,4 @@ public final class Events {
 
     private Events() {}
 }
+
