@@ -46,7 +46,7 @@ public class ChaosMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        PayloadTypeRegistry.playS2C().register(FxPayload.TYPE, FxPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FxPayload.TYPE, FxPayload.CODEC);
         ServerTickEvents.END_SERVER_TICK.register(ChaosMod::tick);
 
         ServerMessageEvents.CHAT_MESSAGE.register((message, sender, params) -> {
@@ -177,7 +177,7 @@ public class ChaosMod implements ModInitializer {
         for (ServerPlayer p : players) {
             UUID id = p.getUUID();
             online.add(id);
-            ServerBossEvent b = bars.computeIfAbsent(id, k -> new ServerBossEvent(Component.literal("Chaos"),
+            ServerBossEvent b = bars.computeIfAbsent(id, k -> new ServerBossEvent(UUID.randomUUID(), Component.literal("Chaos"),
                     BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS));
             if (barOwner.get(id) != p) { b.removeAllPlayers(); b.addPlayer(p); barOwner.put(id, p); }
 
